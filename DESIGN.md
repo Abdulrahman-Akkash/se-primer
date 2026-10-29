@@ -1,7 +1,12 @@
 # SE Primer — Tasarım (DESIGN.md)
 
-> Google Stitch ile üretilen 3 mobil ekranın tasarım notu.
-> Ekran dışa aktarımları `design/` klasöründedir (Stitch PNG/Figma linki).
+> 3 mobil ekranın tasarım notu ve dışa aktarımları.
+> Ekranlar `design/` klasöründedir:
+> - [`screen-1-giris.svg`](design/screen-1-giris.svg) — Giriş / kişiselleştirme
+> - [`screen-2-sahne.svg`](design/screen-2-sahne.svg) — Sahne (karar + sonuç)
+> - [`screen-3-son.svg`](design/screen-3-son.svg) — Son (kabul kriteri)
+>
+> Not: Bu SVG'ler, Stitch'te yeniden çizmek için referans mockup'lardır (ödev Stitch çıktısını istiyorsa aynı düzeni Stitch'e taşıyıp PNG'lerini buraya ekle).
 
 ## Tasarım dili
 

@@ -9,8 +9,10 @@
 | Teslim | Link |
 |---|---|
 | GitHub repo | https://github.com/Abdulrahman-Akkash/se-primer |
-| Çalışan uygulama (telefonda oynanır) | `[AI Studio / Artifact linki]` |
-| 60 sn demo video | `[video linki]` |
+| Çalışan uygulama (telefonda oynanır) | https://abdulrahman-akkash.github.io/se-primer/ |
+| Demo video (~42 sn) | [`demo/demo.mp4`](demo/demo.mp4) |
+
+> Not: Çalışan uygulama GitHub Pages ile yayında (telefonda da açılır). Ödev Google AI Studio linki istiyorsa, `index.html` oraya da yüklenip linki buraya eklenebilir.
 
 ## Çalıştırma
 

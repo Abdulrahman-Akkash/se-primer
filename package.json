@@ -7,7 +7,8 @@
     "serve": "serve -s . -l 8080",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
-    "test": "start-server-and-test serve http://localhost:8080 cy:run"
+    "test": "start-server-and-test serve http://localhost:8080 cy:run",
+    "demo": "start-server-and-test serve http://localhost:8080 \"cypress run --spec cypress/e2e/demo.cy.js --config excludeSpecPattern=cypress/e2e/_none.cy.js\""
   },
   "devDependencies": {
     "cypress": "^13.15.0",
