@@ -8,7 +8,7 @@
 
 | Teslim | Link |
 |---|---|
-| GitHub repo | `[repo linki]` |
+| GitHub repo | https://github.com/Abdulrahman-Akkash/se-primer |
 | Çalışan uygulama (telefonda oynanır) | `[AI Studio / Artifact linki]` |
 | 60 sn demo video | `[video linki]` |
 
