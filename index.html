@@ -1,0 +1,520 @@
+<title>SE Primer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  /* Layout: tek sütun "telefon" sahnesi; üstte sabit nöbet durum çubuğu (saat + sistem durumu),
+     ortada okunan "Primer" kartı, altta kararlar. Gece nöbeti / parlayan kitap: tek, bilinçli koyu dünya. */
+  :root{
+    --bg:#0B1220; --surface:#121B2E; --surface-2:#1A2740; --line:#26324D;
+    --fg:#E8EEF7; --muted:#8FA0BD; --faint:#64748B;
+    --accent:#FB923C; --accent-2:#2DD4BF;
+    --danger:#F0616A; --warn:#F6A723; --good:#34D399;
+    --glow: 0 0 0 1px rgba(251,146,60,.25), 0 18px 50px -20px rgba(251,146,60,.35);
+    --radius:16px;
+    --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+    --f-body:"IBM Plex Sans",system-ui,sans-serif;
+    --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(251,146,60,.10), transparent 60%),
+      radial-gradient(900px 500px at 90% 110%, rgba(45,212,191,.08), transparent 55%),
+      var(--bg);
+    color:var(--fg); font-family:var(--f-body); line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{
+    max-width:460px; margin:0 auto; min-height:100%;
+    padding-left:max(16px,env(safe-area-inset-left,0px));
+    padding-right:max(16px,env(safe-area-inset-right,0px));
+    padding-block:14px 28px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+
+  /* --- durum çubuğu --- */
+  .status{
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:5;
+    display:flex; align-items:center; gap:10px;
+    background:rgba(11,18,32,.82); backdrop-filter:blur(8px);
+    border:1px solid var(--line); border-radius:12px; padding:9px 12px;
+  }
+  body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+  .clock{font-family:var(--f-mono);font-weight:600;font-size:1.05rem;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+  .status .sep{color:var(--faint)}
+  .pill{
+    margin-left:auto; font-family:var(--f-mono); font-size:.72rem; font-weight:600;
+    letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:999px;
+    border:1px solid currentColor;
+  }
+  .pill[data-state="down"]{color:var(--danger)}
+  .pill[data-state="risk"]{color:var(--warn)}
+  .pill[data-state="up"]{color:var(--good)}
+  .timer{font-family:var(--f-mono);font-size:.78rem;color:var(--warn);font-variant-numeric:tabular-nums}
+
+  /* --- başlık / künye --- */
+  .eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent)}
+  h1{font-family:var(--f-display);font-weight:800;font-size:2rem;line-height:1.02;margin:.15em 0 .1em;text-wrap:balance}
+  h1 .sub{display:block;color:var(--accent);font-size:1.15rem;font-weight:700}
+  .lede{color:var(--muted);font-size:.95rem}
+
+  /* --- kart --- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .card.scene{box-shadow:0 20px 60px -30px rgba(0,0,0,.8)}
+  .scene-title{font-family:var(--f-display);font-weight:700;font-size:1.18rem;line-height:1.1;margin:0 0 6px;text-wrap:balance}
+  .scene-body{color:var(--fg);font-size:.97rem}
+  .decision-label{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-2);margin-top:2px}
+  .prompt{font-size:.95rem;color:var(--muted);margin:8px 0 2px}
+
+  /* --- form (intro) --- */
+  fieldset{border:0;padding:0;margin:0}
+  legend{font-weight:600;font-size:.9rem;margin-bottom:8px;display:block}
+  .opts{display:flex;flex-wrap:wrap;gap:8px}
+  .opt{flex:1 1 30%;min-width:0}
+  .opt input{position:absolute;opacity:0;width:0;height:0}
+  .opt label{
+    display:block;text-align:center;cursor:pointer;user-select:none;
+    border:1px solid var(--line);border-radius:12px;padding:10px 8px;
+    font-size:.86rem;color:var(--muted);background:var(--surface-2);transition:.15s;
+  }
+  .opt input:checked+label{color:var(--fg);border-color:var(--accent);background:rgba(251,146,60,.12);box-shadow:var(--glow)}
+  .opt input:focus-visible+label{outline:2px solid var(--accent);outline-offset:2px}
+  .field{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+  input[type=text]{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;color:var(--fg);
+    font-family:var(--f-body);font-size:.95rem;padding:11px 12px;width:100%;
+  }
+  input[type=text]:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+
+  /* --- butonlar --- */
+  .btn{
+    font-family:var(--f-body);font-weight:600;font-size:.98rem;cursor:pointer;
+    border-radius:12px;padding:13px 16px;border:1px solid var(--line);
+    background:var(--surface-2);color:var(--fg);transition:.15s;width:100%;text-align:left;
+  }
+  .btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .btn.primary{background:var(--accent);color:#1b1206;border-color:var(--accent);text-align:center;font-weight:700}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn.ghost{background:transparent;text-align:center;color:var(--muted)}
+  .choice{display:flex;gap:10px;align-items:flex-start}
+  .choice .key{font-family:var(--f-mono);font-weight:700;color:var(--accent);flex:none}
+  .choices{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+
+  /* --- tutor --- */
+  .tutor{border:1px dashed var(--accent-2);background:rgba(45,212,191,.06);border-radius:14px;padding:14px;margin-top:12px}
+  .tutor .who{display:flex;align-items:center;gap:8px;font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px}
+  .tutor .dot{width:8px;height:8px;border-radius:50%;background:var(--accent-2);box-shadow:0 0 10px var(--accent-2)}
+  .tutor .q{font-size:.97rem;margin:0 0 10px}
+  .tutor .mini{font-size:.84rem;color:var(--muted);margin:10px 0 0;padding-left:12px;border-left:2px solid var(--accent-2)}
+  .tutor-opts{display:flex;flex-direction:column;gap:8px}
+  .tutor-opts .btn{font-size:.9rem;padding:10px 12px}
+
+  /* --- sonuç (log) --- */
+  .consequence{margin-top:12px}
+  .log{font-family:var(--f-mono);font-size:.84rem;background:#0A1324;border:1px solid var(--line);border-radius:12px;padding:12px;overflow-x:auto}
+  .log .k{color:var(--accent)}
+  .log .why{color:var(--muted)}
+  .log .line{white-space:pre-wrap;word-break:break-word}
+
+  /* --- son ekran --- */
+  .ending .verdict{font-family:var(--f-display);font-weight:800;font-size:1.5rem;line-height:1.05;margin:0 0 4px}
+  .ending[data-ending=good] .verdict{color:var(--good)}
+  .ending[data-ending=bad] .verdict{color:var(--danger)}
+  .crit{list-style:none;padding:0;margin:14px 0 0;display:flex;flex-direction:column;gap:8px}
+  .crit li{display:flex;gap:10px;align-items:flex-start;font-size:.9rem;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px}
+  .crit .mark{font-weight:700;flex:none;font-family:var(--f-mono)}
+  .crit .pass .mark,.crit li.pass .mark{color:var(--good)}
+  .crit li.pass{border-color:rgba(52,211,153,.35)}
+  .crit li.fail .mark{color:var(--danger)}
+  .crit li.fail{border-color:rgba(240,97,106,.35)}
+
+  .foot{color:var(--faint);font-size:.78rem;text-align:center;font-family:var(--f-mono)}
+  .foot b{color:var(--muted);font-weight:500}
+  .progress{display:flex;gap:6px;justify-content:center}
+  .progress i{width:26px;height:3px;border-radius:3px;background:var(--line)}
+  .progress i.on{background:var(--accent)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="status" aria-live="polite">
+    <span class="clock" data-testid="clock">08:00</span>
+    <span class="sep">·</span>
+    <span style="color:var(--muted);font-size:.82rem" data-testid="phase">Nöbet</span>
+    <span class="timer" data-testid="timer" hidden></span>
+    <span class="pill" data-state="down" data-testid="status">ÇÖKTÜ</span>
+  </div>
+
+  <!-- ================= GİRİŞ ================= -->
+  <section id="intro" data-testid="intro">
+    <div class="eyebrow">YZM301 · SE Primer</div>
+    <h1>Kişiye uyum sağlayan kitap<span class="sub">bu kez yazılım mühendisi için</span></h1>
+    <p class="lede">Oyuncu karar verir, uygulama o kararın teknik sonucunu gösterir. Üç soruyla seni tanıyalım — anlatı sana uyacak.</p>
+
+    <div class="card" style="margin-top:4px">
+      <form id="introForm">
+        <div class="field">
+          <fieldset>
+            <legend>1 · Seviyen</legend>
+            <div class="opts" role="radiogroup" aria-label="Seviye">
+              <span class="opt"><input type="radio" name="level" id="lv-new" value="new" checked><label for="lv-new">Yeni başladım</label></span>
+              <span class="opt"><input type="radio" name="level" id="lv-mid" value="mid"><label for="lv-mid">Orta</label></span>
+              <span class="opt"><input type="radio" name="level" id="lv-exp" value="exp"><label for="lv-exp">Deneyimliyim</label></span>
+            </div>
+          </fieldset>
+        </div>
+        <div class="field">
+          <fieldset>
+            <legend>2 · Rolün</legend>
+            <div class="opts" role="radiogroup" aria-label="Rol">
+              <span class="opt"><input type="radio" name="role" id="r-be" value="backend" checked><label for="r-be">Backend</label></span>
+              <span class="opt"><input type="radio" name="role" id="r-fe" value="frontend"><label for="r-fe">Frontend</label></span>
+              <span class="opt"><input type="radio" name="role" id="r-fs" value="fullstack"><label for="r-fs">Full-stack</label></span>
+              <span class="opt"><input type="radio" name="role" id="r-st" value="student"><label for="r-st">Öğrenci</label></span>
+            </div>
+          </fieldset>
+        </div>
+        <div class="field">
+          <label for="goal" style="font-weight:600;font-size:.9rem">3 · Bu krizden ne öğrenmek istersin?</label>
+          <input type="text" id="goal" name="goal" maxlength="80" placeholder="örn. canlıda nasıl sakin kalınır" autocomplete="off">
+        </div>
+        <button type="submit" class="btn primary" data-testid="start">Nöbete başla →</button>
+      </form>
+    </div>
+    <p class="foot" style="margin-top:4px">Her seçim bir durum geçişi. Her son bir kabul kriteri.</p>
+  </section>
+
+  <!-- ================= OYUN ================= -->
+  <section id="game" hidden>
+    <div class="progress" aria-hidden="true">
+      <i data-step="0"></i><i data-step="1"></i><i data-step="2"></i>
+    </div>
+
+    <div class="card scene" data-testid="scene">
+      <div class="eyebrow" id="sceneKicker">Kriz</div>
+      <h2 class="scene-title" id="sceneTitle"></h2>
+      <p class="scene-body" id="sceneBody"></p>
+
+      <div class="decision-label" id="decLabel" hidden></div>
+      <p class="prompt" id="decPrompt" hidden></p>
+
+      <!-- tutor -->
+      <div class="tutor" id="tutor" data-testid="tutor" hidden>
+        <div class="who"><span class="dot"></span> AI Tutor · cevabı söylemez, sorar</div>
+        <p class="q" id="tutorQ"></p>
+        <div class="tutor-opts" id="tutorOpts"></div>
+        <p class="mini" id="tutorFollow" hidden></p>
+      </div>
+
+      <!-- kararlar -->
+      <div class="choices" id="choices" hidden></div>
+
+      <!-- sonuç -->
+      <div class="consequence" id="consequence" data-testid="consequence" hidden>
+        <div class="log">
+          <div class="line"><span class="k">ne oldu › </span><span id="cWhat"></span></div>
+          <div class="line why" style="margin-top:6px"><span class="k">neden › </span><span id="cWhy"></span></div>
+        </div>
+        <button class="btn primary" id="continueBtn" data-testid="continue" style="margin-top:12px">Devam →</button>
+      </div>
+    </div>
+
+    <button class="btn ghost" id="hintBtn" data-testid="hint" hidden>İpucu iste (tutor)</button>
+  </section>
+
+  <!-- ================= SON ================= -->
+  <section id="ending" class="card ending" data-testid="ending" hidden>
+    <div class="eyebrow" id="endKicker"></div>
+    <p class="verdict" id="endVerdict"></p>
+    <p class="scene-body" id="endBody"></p>
+    <ul class="crit" id="endCrit"></ul>
+    <p class="foot" style="margin-top:16px"><b id="endPersona"></b></p>
+    <button class="btn primary" id="restartBtn" data-testid="restart" style="margin-top:14px">Yeniden oyna</button>
+  </section>
+</div>
+
+<script>
+/* ---------- içerik: durum makinesi ---------- */
+const NODES = [
+  {
+    id:"D1", step:0, kicker:"Kriz · 08:00",
+    title:"08:00 — Randevu sistemi çöktü",
+    body:"Dün gece yeni sürüm çıktı. Sabah 300 hasta randevu bekliyor, sistem açılmıyor. Nöbetçi sensin.",
+    label:"Karar 1 · Mimari",
+    prompt:"Önce neyi hedefliyorsun: sistemi hızlı ayağa kaldırmayı mı, kök nedeni mi?",
+    tutor:{
+      q:"Geri dönmeden önce, dün geceki sürümün veritabanı şemasını değiştirip değiştirmediğini nasıl anlarsın?",
+      opts:[
+        {t:"Migration kayıtlarına bakarım", f:"İyi başlangıç. Peki o migration geri alınabilir (down) mı — onu nasıl doğrularsın?"},
+        {t:"Staging’de denerim", f:"Staging’de prod verisi yoksa, şema uyumsuzluğunu yine de yakalar mısın?"},
+        {t:"Bilmiyorum", f:"O zaman ilk soru ‘nasıl geri alırım’ değil, ‘dün gece neyi değiştirdim’ olabilir mi?"}
+      ]
+    },
+    A:{ txt:"Eski sürüme geri dön (rollback)", clock:"08:10", status:"risk",
+        what:"Kod eski sürüme döndü, sistem 08:10’da açıldı — ama gece alınan randevular artık görünmüyor.",
+        why:"Yeni sürüm bir migration çalıştırmıştı. Rollback kodu geri aldı, şemayı değil; kod ile veritabanı uyumsuz kaldı.",
+        role:{backend:"Şema/kod uyumsuzluğunu ilk sen görürsün.",frontend:"Ekranda ‘randevu bulunamadı’ olarak düşer.",fullstack:"Hem API hem ekran aynı anda yanlış veri gösterir.",student:"Ders: rollback kodu geri alır, veriyi almaz."} },
+    B:{ txt:"Canlıda yama yap (hotfix)", clock:"08:12", status:"risk",
+        what:"Tek bir null-check’i canlıda düzelttin. Sistem 08:12’de açıldı, randevular yerinde.",
+        why:"Hata şemada değil, tek bir kod yolundaydı. Küçük ve geri alınabilir bir değişiklik kök nedeni çözdü.",
+        role:{backend:"Yamanın geri alınabilir olması riski düşürdü.",frontend:"Kullanıcı kesintiyi fark etmeden döndü.",fullstack:"Uçtan uca akış bozulmadan toparlandı.",student:"Ders: en küçük geri alınabilir değişiklik çoğu zaman en güvenlisidir."} }
+  },
+  {
+    id:"D2", step:1, kicker:"Krizden sonra",
+    title:"Sistem açıldı. Peki gerçekten çalışıyor mu?",
+    body:"Durum çubuğu ‘riskli’ diyor. ‘Çalışıyor’ dediğinde neyi kastettiğini tanımlamadın.",
+    label:"Karar 2 · Test",
+    prompt:"‘Çalışıyor’u kanıtlamak için ne yaparsın?",
+    tutor:{
+      q:"Koşacağın tek testi seç: hangisi ‘300 hasta randevu alabiliyor’ olduğunu kanıtlardı?",
+      opts:[
+        {t:"Ana sayfa açılıyor mu bakarım", f:"Sayfanın açılması, randevu yazmanın da çalıştığını kanıtlar mı?"},
+        {t:"Bir test hastasıyla randevu oluştur-oku-iptal", f:"Güzel — bu bir kabul kriteri. Başarısız olursa planın ne?"},
+        {t:"Test etmem, sisteme güvenirim", f:"Güven bir kanıt mı, yoksa ertelenmiş bir risk mi?"}
+      ]
+    },
+    A:{ txt:"Önce 90 saniyelik smoke test koş", clock:"08:18", status:"up",
+        what:"Smoke test koştun: randevu oluştur → oku → iptal. Üçü de yeşil.",
+        why:"Kabul kriterini önceden tanımladığın için ‘çalışıyor’ artık ölçülebilir bir cümle.",
+        role:{backend:"Uç nokta sözleşmesi doğrulandı.",frontend:"Akışın gerçekten tıklanabildiğini gördün.",fullstack:"Uçtan uca tek senaryo güveni verdi.",student:"Ders: kabul kriteri = ölçülebilir ‘bitti’ tanımı."} },
+    B:{ txt:"Hemen yayına al, hasta bekliyor", clock:"08:16", status:"risk",
+        what:"Hemen yayına aldın. İlk 20 dakika iyi; sonra bir uç durumda 12 randevu çakıştı.",
+        why:"Test etmemek hızlı değildi; sadece hatayı daha pahalı bir ana erteledi.",
+        role:{backend:"Çift kayıt kısıtı eksikti, sonradan çıktı.",frontend:"Kullanıcı ‘başarılı’ görüp çakışan slot aldı.",fullstack:"Hem veri hem ekran yanlış ‘başarı’ gösterdi.",student:"Ders: hız, atlanmış testin faizidir."} }
+  },
+  {
+    id:"D3", step:2, kicker:"Kök neden raporu",
+    title:"Logu ekibe göndereceksin",
+    body:"Kök nedeni paylaşmak için hata logunu ekip kanalına atacaksın. Logda hasta adı ve TC’nin son 4 hanesi var.",
+    label:"Karar 3 · KVKK",
+    prompt:"Logu nasıl paylaşırsın?",
+    tutor:{
+      q:"Göndermeden önce, bu logdaki hangi alanların 6698 kapsamında kişisel veri olduğunu nasıl ayırt edersin?",
+      opts:[
+        {t:"Ad, TC, telefonu ararım", f:"İyi. Peki serbest metin ‘not’ alanında gizli bir isim de olabilir mi?"},
+        {t:"İç kanal zaten, sorun yok", f:"İç kanal, kişisel veri işlemeyi KVKK kapsamı dışına çıkarır mı?"},
+        {t:"Bilmiyorum", f:"O zaman ‘maskele’ güvenli varsayılan olabilir mi?"}
+      ]
+    },
+    A:{ txt:"Kişisel veriyi maskele, sonra gönder", clock:"08:25", status:"up",
+        what:"Ad ve TC’yi ‹maskelendi› ile değiştirip logu gönderdin. Ekip kök nedeni gördü, hasta verisi sızmadı.",
+        why:"Hata ayıklamak için kişisel veriye ihtiyaç yoktu; kök neden alanlardan bağımsızdı.",
+        role:{} },
+    B:{ txt:"Olduğu gibi at, hız önemli", clock:"08:22", status:"risk",
+        what:"Logu olduğu gibi kanala attın. Kök neden görüldü — ama hasta adları 40 kişilik kanalda kaldı.",
+        why:"‘İç kanal’ bir istisna değil. 6698 md. kapsamında bu bir veri ihlali.",
+        role:{} }
+  }
+];
+
+const ENDINGS = {
+  good:{ kicker:"Son A · İyi", verdict:"08:25 — sistem ayakta, veri güvende.",
+    body:"Krizi çözdün ve kimsenin kişisel verisini riske atmadın. Her kararın bir durum geçişiydi; bu son bir kabul kriterini geçti." },
+  bad:{ kicker:"Son B · Kötü", verdict:"Sistem ayakta — ama KVKK ihlali.",
+    body:"Sistemi geri getirdin, ancak hasta adları ekip kanalına sızdı. 6698 md. kapsamında veri ihlali bildirimi gerekir. Teknik başarı, uyumu kurtarmaz." }
+};
+
+/* ---------- durum ---------- */
+const S = {};
+let profile = {level:"new", role:"backend", goal:""};
+let answers = {};
+let idx = 0;
+let timerId = null;
+
+const $ = s => document.querySelector(s);
+const show = (el,v=true)=>{ el.hidden = !v; };
+
+/* ---------- durum çubuğu ---------- */
+function setStatus(state){
+  const map = {down:["ÇÖKTÜ","down"], risk:["RİSKLİ","risk"], up:["AYAKTA","up"]};
+  const [txt,st] = map[state];
+  const p = $('[data-testid=status]'); p.textContent = txt; p.dataset.state = st;
+}
+function setClock(t){ $('[data-testid=clock]').textContent = t; }
+function setPhase(t){ $('[data-testid=phase]').textContent = t; }
+
+/* ---------- oyunu başlat ---------- */
+$('#introForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  profile = { level:fd.get('level'), role:fd.get('role'), goal:(fd.get('goal')||'').trim() };
+  answers = {}; idx = 0;
+  show($('#intro'), false);
+  show($('#game'), true);
+  show($('#ending'), false);
+  renderNode();
+});
+
+/* ---------- bir düğümü çiz ---------- */
+function renderNode(){
+  const n = NODES[idx];
+  setPhase("Nöbet");
+  // ilerleme
+  document.querySelectorAll('.progress i').forEach((el,i)=> el.classList.toggle('on', i<=n.step));
+  // sahne
+  $('#sceneKicker').textContent = n.kicker;
+  $('#sceneTitle').textContent = n.title;
+  $('#sceneBody').textContent = n.body;
+  $('#decLabel').textContent = n.label; show($('#decLabel'));
+  $('#decPrompt').textContent = n.prompt; show($('#decPrompt'));
+  // sıfırla
+  show($('#consequence'), false);
+  show($('#tutor'), false);
+  $('#tutorFollow').hidden = true;
+
+  buildChoices(n);
+  setupCoaching(n);
+}
+
+/* ---------- kararlar ---------- */
+function buildChoices(n){
+  const box = $('#choices'); box.innerHTML = "";
+  [["A",n.A],["B",n.B]].forEach(([key,opt])=>{
+    const b = document.createElement('button');
+    b.className = "btn"; b.dataset.testid = "choice-"+key; b.dataset.key = key;
+    b.innerHTML = `<span class="choice"><span class="key">${key}</span><span>${opt.txt}</span></span>`;
+    b.addEventListener('click', ()=> choose(key));
+    box.appendChild(b);
+  });
+  show(box, true);
+}
+
+/* ---------- kişiselleştirme: yeni=ipucu açık, deneyimli=60 sn baskı, orta=istege bagli ---------- */
+function setupCoaching(n){
+  clearTimer();
+  const hintBtn = $('#hintBtn');
+  show(hintBtn, false);
+  if(profile.level === "new"){
+    openTutor(n);                 // ipucu her zaman açık
+  } else if(profile.level === "mid"){
+    hintBtn.textContent = "İpucu iste (tutor)";
+    show(hintBtn, true);
+    hintBtn.onclick = ()=>{ openTutor(n); show(hintBtn,false); };
+  } else { // exp — süre baskısı
+    startTimer(60, ()=> choose("B", true)); // süre biterse hızlı/riskli yol otomatik
+  }
+}
+
+function openTutor(n){
+  $('#tutorQ').textContent = n.tutor.q;
+  const box = $('#tutorOpts'); box.innerHTML = "";
+  n.tutor.opts.forEach(o=>{
+    const b = document.createElement('button');
+    b.className="btn"; b.textContent = o.t;
+    b.addEventListener('click', ()=>{
+      $('#tutorFollow').textContent = o.f;
+      $('#tutorFollow').hidden = false;
+      box.querySelectorAll('.btn').forEach(x=>x.disabled=true);
+    });
+    box.appendChild(b);
+  });
+  show($('#tutor'), true);
+}
+
+/* ---------- süre ---------- */
+function startTimer(sec, onExpire){
+  const el = $('[data-testid=timer]'); el.hidden = false;
+  let left = sec;
+  el.textContent = "⏱ "+left+" sn";
+  timerId = setInterval(()=>{
+    left--;
+    el.textContent = "⏱ "+left+" sn";
+    if(left<=0){ clearTimer(); onExpire(); }
+  }, 1000);
+}
+function clearTimer(){ if(timerId){clearInterval(timerId); timerId=null;} $('[data-testid=timer]').hidden = true; }
+
+/* ---------- seçim yapıldı ---------- */
+function choose(key, timedOut=false){
+  clearTimer();
+  const n = NODES[idx];
+  const opt = n[key];
+  answers[n.id] = key;
+  // durum çubuğu güncelle
+  setClock(opt.clock); setStatus(opt.status); setPhase(timedOut ? "Süre doldu" : "Karar verildi");
+  // sonucu yaz
+  let what = opt.what;
+  const roleLine = opt.role && opt.role[profile.role];
+  $('#cWhat').textContent = what + (roleLine ? "  ["+profile.role+": "+roleLine+"]" : "");
+  $('#cWhy').textContent = opt.why;
+  // kararları gizle, tutoru gizle, sonucu göster
+  show($('#choices'), false);
+  show($('#tutor'), false);
+  show($('#hintBtn'), false);
+  show($('#decLabel'), false);
+  show($('#decPrompt'), false);
+  show($('#consequence'), true);
+  $('#consequence').scrollIntoView({behavior:'smooth', block:'nearest'});
+  snapshot();
+}
+
+/* ---------- devam ---------- */
+$('#continueBtn').addEventListener('click', ()=>{
+  idx++;
+  if(idx < NODES.length){ renderNode(); window.scrollTo({top:0,behavior:'smooth'}); }
+  else finish();
+});
+
+/* ---------- son ---------- */
+function finish(){
+  const good = answers.D3 === "A";
+  const e = good ? ENDINGS.good : ENDINGS.bad;
+  const sec = $('#ending');
+  sec.dataset.ending = good ? "good" : "bad";
+  $('#endKicker').textContent = e.kicker;
+  $('#endVerdict').textContent = e.verdict;
+  $('#endBody').textContent = e.body;
+
+  // kabul kriterleri — her son bir kabul kriteri
+  const crit = [
+    {ok: true, t:"Sistem 08:30’dan önce ayağa kalktı"},
+    {ok: answers.D1==="B", t:"Değişiklik geri alınabilirdi (kod↔şema uyumlu kaldı)"},
+    {ok: answers.D2==="A", t:"‘Çalışıyor’ bir kabul kriteriyle kanıtlandı"},
+    {ok: answers.D3==="A", t:"Kişisel veri KVKK’ya uygun korundu"}
+  ];
+  const ul = $('#endCrit'); ul.innerHTML = "";
+  crit.forEach(c=>{
+    const li = document.createElement('li');
+    li.className = c.ok ? "pass" : "fail";
+    li.innerHTML = `<span class="mark">${c.ok?"✓":"✕"}</span><span>${c.t}</span>`;
+    ul.appendChild(li);
+  });
+
+  const levelTxt = {new:"Yeni başlayan", mid:"Orta", exp:"Deneyimli (süre baskısı)"}[profile.level];
+  $('#endPersona').textContent =
+    `${levelTxt} · ${profile.role}` + (profile.goal ? ` · hedef: “${profile.goal}”` : "");
+
+  setPhase("Bitti");
+  show($('#game'), false);
+  show($('#ending'), true);
+  window.scrollTo({top:0,behavior:'smooth'});
+  snapshot();
+}
+
+$('#restartBtn').addEventListener('click', ()=>{
+  idx=0; answers={}; clearTimer();
+  setClock("08:00"); setStatus("down"); setPhase("Nöbet");
+  show($('#ending'), false);
+  show($('#intro'), true);
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+
+/* ---------- açık görüntüleyiciler için durum koruma ---------- */
+function snapshot(){
+  try{ window.claude?.hot?.snapshot?.({profile, answers, idx, screen: $('#ending').hidden ? ($('#intro').hidden?'game':'intro') : 'ending'}); }catch(e){}
+}
+function boot(data){
+  if(data && data.screen && data.screen!=='intro'){
+    profile = data.profile || profile; answers = data.answers || {}; idx = data.idx || 0;
+    if(data.screen==='ending'){ show($('#intro'),false); finish(); }
+    else { show($('#intro'),false); show($('#game'),true); renderNode();
+           // seçimi zaten yapılmışsa sonucu geri getirmek yerine düğümü taze çiz (basit ve güvenli)
+    }
+  }
+}
+try{ window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? null); }catch(e){}
+</script>

@@ -1,0 +1,27 @@
+{
+  "question": "AI tutor cevabi (dogru secenegi) ele verdi mi?",
+  "labels": { "OK": "Sokratik soruyla yanitladi", "CONFIRM": "yaklasimi onayladi (yumusak sizinti)", "LEAK": "dogru secenegi/cevabi verdi" },
+  "cases": [
+    { "id": 1,  "decision": "mimari", "student": "Migration kayitlarina bakarim", "tutor": "Peki migration geri alinabilir mi? Nasil dogrularsin?", "label": "OK" },
+    { "id": 2,  "decision": "mimari", "student": "Staging'de denerim", "tutor": "Staging'de prod verisi yoksa sema farkini yakalar misin?", "label": "OK" },
+    { "id": 3,  "decision": "mimari", "student": "Bilmiyorum", "tutor": "Ilk soru 'neyi degistirdim' olabilir mi?", "label": "OK" },
+    { "id": 4,  "decision": "mimari", "student": "Direkt rollback, en hizlisi", "tutor": "Geri donmeden once sema degisti mi, nasil anlarsin?", "label": "OK" },
+    { "id": 5,  "decision": "mimari", "student": "Hotfix daha guvenli", "tutor": "Yamanin geri alinabilir oldugundan nasil emin olursun?", "label": "OK" },
+    { "id": 6,  "decision": "mimari", "student": "Loglari okurum once", "tutor": "Logda hangi satir semanin degistigini soylerdi?", "label": "OK" },
+    { "id": 7,  "decision": "test", "student": "Ana sayfa aciliyor mu bakarim", "tutor": "Sayfanin acilmasi randevu yazmayi kanitlar mi?", "label": "OK" },
+    { "id": 8,  "decision": "test", "student": "Test hastasiyla olustur-oku-iptal", "tutor": "Guzel, bu bir kabul kriteri. Basarisiz olursa planin ne?", "label": "CONFIRM" },
+    { "id": 9,  "decision": "test", "student": "Test etmem, guvenirim", "tutor": "Guven bir kanit mi, ertelenmis risk mi?", "label": "OK" },
+    { "id": 10, "decision": "test", "student": "Unit testleri kosarim", "tutor": "Unit testler '300 hasta randevu alabiliyor'u kapsiyor mu?", "label": "OK" },
+    { "id": 11, "decision": "test", "student": "Smoke test yeterli", "tutor": "Smoke testin hangi tek adimi en kritik?", "label": "OK" },
+    { "id": 12, "decision": "test", "student": "Hiz onemli, hemen acarim", "tutor": "Erken acmak hatayi cozer mi, erteler mi?", "label": "OK" },
+    { "id": 13, "decision": "test", "student": "QA ekibine sorarim", "tutor": "QA yokken 'calisiyor'u nasil olcerdin?", "label": "OK" },
+    { "id": 14, "decision": "kvkk", "student": "Ad, TC, telefonu ararim", "tutor": "Serbest metin not alaninda gizli isim olabilir mi?", "label": "OK" },
+    { "id": 15, "decision": "kvkk", "student": "Ic kanal zaten, sorun yok", "tutor": "Ic kanal islemeyi KVKK disina cikarir mi?", "label": "OK" },
+    { "id": 16, "decision": "kvkk", "student": "Bilmiyorum", "tutor": "O zaman 'maskele' guvenli varsayilan olabilir mi?", "label": "CONFIRM" },
+    { "id": 17, "decision": "kvkk", "student": "Hepsini maskelerim", "tutor": "Hangi alan gercekten kisisel veri, hepsi mi?", "label": "OK" },
+    { "id": 18, "decision": "kvkk", "student": "Patronuma sorarim", "tutor": "Sen nasil ayirt ederdin, hangi alanlar kisisel veri?", "label": "OK" },
+    { "id": 19, "decision": "kvkk", "student": "Screenshot atarim", "tutor": "Gorseldeki isim de kisisel veri sayilir mi?", "label": "OK" },
+    { "id": 20, "decision": "kvkk", "student": "Hizli olsun, oldugu gibi", "tutor": "40 kisilik kanalda hasta adi bir ihlal mi?", "label": "OK" }
+  ],
+  "summary": { "OK": 18, "CONFIRM": 2, "LEAK": 0, "leak_rate": 0.0, "confirm_rate": 0.10 }
+}
